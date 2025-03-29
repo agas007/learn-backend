@@ -3,6 +3,9 @@ const app = express();
 const cors = require('cors');
 const connectDB = require('./db');
 const logger = require('./middlewares/logger');
+const morgan = require('morgan');
+const fs = require('fs');
+const path = require('path');
 
 // Data pegawai
 const Pegawai = require('./models/pegawai');
@@ -14,6 +17,12 @@ app.use(express.json()); // Middleware buat baca JSON
 app.use(cors()); // Middleware buat CORS
 app.use(logger);
 
+// Logging
+const logStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+
+app.use(morgan('combined', { stream: logStream }));
+
+// Connect to MongoDB
 connectDB();
 
 // Landing Page
