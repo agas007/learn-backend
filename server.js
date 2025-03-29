@@ -9,11 +9,12 @@ const path = require('path');
 const moment = require('moment-timezone');
 const errorHandler = require('./middlewares/errorHandler');
 
-// Data pegawai
+// Import Models
 const Pegawai = require('./models/pegawai');
 
-// Routes Pegawai
+// Import Routes
 const pegawaiRoutes = require('./routes/pegawaiRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 app.use(express.json()); // Middleware buat baca JSON
 app.use(cors()); // Middleware buat CORS
@@ -35,8 +36,9 @@ app.get('/', (req, res) => {
   res.send('Selamat datang di Latihan Backend Agas!');
 });
 
-// Pake routing pegawai
+// Routing
 app.use('/api/v1', pegawaiRoutes);
+app.use('/api/v1', authRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
