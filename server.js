@@ -20,7 +20,8 @@ app.get('/', (req, res) => {
 // GET semua pegawai
 app.get('/pegawai', async (req, res) => {
   try {
-    const pegawai = await Pegawai.find();
+    const sortOrder = req.query.order === 'desc' ? -1 : 1; // Default ASC, kalau ?order=desc jadi DESC
+    const pegawai = await Pegawai.find().sort({ nama: sortOrder }); // Sortir berdasarkan nama
     res.json(pegawai);
   } catch (err) {
     res.status(500).json({ message: err.message });
