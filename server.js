@@ -70,7 +70,7 @@ app.put('/pegawai/:id', async (req, res) => {
 // PATCH pegawai
 app.patch('/pegawai/:id', async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const peg = await Pegawai.findById(id);
     
       if (!peg) return res.status(404).json({ message: "Pegawai tidak ditemukan" });
