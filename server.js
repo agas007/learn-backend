@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const connectDB = require('./db');
+const logger = require('./middlewares/logger');
 
 // Data pegawai
 const Pegawai = require('./models/pegawai');
@@ -11,6 +12,7 @@ const pegawaiRoutes = require('./routes/pegawaiRoutes');
 
 app.use(express.json()); // Middleware buat baca JSON
 app.use(cors()); // Middleware buat CORS
+app.use(logger);
 
 connectDB();
 
