@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 const moment = require('moment-timezone');
+const errorHandler = require('./middlewares/errorHandler');
 
 // Data pegawai
 const Pegawai = require('./models/pegawai');
@@ -36,6 +37,9 @@ app.get('/', (req, res) => {
 
 // Pake routing pegawai
 app.use('/api/v1', pegawaiRoutes);
+
+// Error handling middleware
+app.use(errorHandler);
 
 // Console log untuk mengetahui bahwa server sudah berjalan
 app.listen(3000, () => {
