@@ -3,6 +3,9 @@ const app = express();
 const cors = require('cors');
 const connectDB = require('./db');
 
+// Data pegawai
+const Pegawai = require('./models/pegawai');
+
 app.use(express.json()); // Middleware buat baca JSON
 app.use(cors()); // Middleware buat CORS
 
@@ -13,81 +16,84 @@ app.get('/', (req, res) => {
   res.send('Selamat datang di Latihan Backend Agas!');
 });
 
-// Data pegawai
-const pegawai = [
-    { id: 1, nama: 'Agas', email: 'agas@example.com' },
-    { id: 2, nama: 'Budi', email: 'budi@example.com' },
-];
 
 // GET semua pegawai
-app.get('/pegawai', (req, res) => {
-  res.json(pegawai);
+app.get('/pegawai', async (req, res) => {
+  try {
+    const pegawai = await Pegawai.find();
+    res.json(pegawai);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // GET pegawai by ID
-app.get('/pegawai/:id', (req, res) => {
-  const peg = pegawai.find(p => p.id === parseInt(req.params.id));
-  if (!peg) return res.status(404).json({ message: 'Pegawai tidak ditemukan' });
-  res.json(peg);
+app.get('/pegawai/:id', async (req, res) => {
+  try {
+    const pegawai = await Pegawai.findById(req.params.id);
+    if (!pegawai) return res.status(404).json({ message: 'Pegawai tidak ditemukan' });
+    res.json(pegawai);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // POST pegawai
-app.post('/pegawai', (req, res) => {
+app.post('/pegawai', async (req, res) => {
+  try { 
     const { nama, email } = req.body;
-    const newPegawai = { id: pegawai.length + 1, nama, email };
-  
-    // ✅ Cek apakah nama dan email ada
-    if (!nama || !email) {
-        return res.status(400).json({ error: "Nama dan email wajib diisi!" });
-    }
-
-    pegawai.push(newPegawai);
-    res.status(201).json(newPegawai);
-  });
+      const newPegawai = new Pegawai({ nama, email });
+      await newPegawai.save();
+      res.status(201).json(newPegawai);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+  }
+});
 
 // PUT pegawai
-app.put('/pegawai/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const peg = pegawai.find(p => p.id === id);
-  
-    if (!peg) return res.status(404).json({ message: "Pegawai tidak ditemukan" });
-
-    // ✅ Cek apakah nama dan email ada
-    if (!nama || !email) {
-        return res.status(400).json({ error: "Nama dan email wajib diisi!" });
-    }
-  
-    peg.nama = req.body.nama;
-    peg.email = req.body.email;
-    res.json({ message: 'Pegawai berhasil diupdate', pegawai: peg });
-  });
+app.put('/pegawai/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const peg = await Pegawai.findById(id);
+    
+      if (!peg) return res.status(404).json({ message: "Pegawai tidak ditemukan" });
+    
+      peg.nama = req.body.nama;
+      peg.email = req.body.email;
+      res.json({ message: 'Pegawai berhasil diupdate', pegawai: peg });
+  } catch (err) {
+      res.status(500).json({ message: err.message });
+  }
+});
 
 // PATCH pegawai
-app.patch('/pegawai/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const peg = pegawai.find(p => p.id === id);
-  
-    if (!peg) return res.status(404).json({ message: "Pegawai tidak ditemukan" });
-
-    // ✅ Cek apakah nama dan email ada
-    if (!nama || !email) {
-        return res.status(400).json({ error: "Nama dan email wajib diisi!" });
-    }
-  
-    peg.nama = req.body.nama || peg.nama;
-    peg.email = req.body.email || peg.email;
-    res.json({ message: 'Pegawai berhasil diupdate', pegawai: peg });
-  });
+app.patch('/pegawai/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const peg = await Pegawai.findById(id);
+    
+      if (!peg) return res.status(404).json({ message: "Pegawai tidak ditemukan" });
+    
+      peg.nama = req.body.nama || peg.nama;
+      peg.email = req.body.email || peg.email;
+      res.json({ message: 'Pegawai berhasil diupdate', pegawai: peg });
+  } catch (err) {
+      res.status(500).json({ message: err.message });
+  }
+});
 
 // DELETE pegawai
-app.delete('/pegawai/:id', (req, res) => {
-  const peg = pegawai.find(p => p.id === parseInt(req.params.id));
-  if (!peg) return res.status(404).json({ message: 'Pegawai tidak ditemukan' });
+app.delete('/pegawai/:id', async (req, res) => {
+  try {
+    const peg = await Pegawai.findById(req.params.id);
+    if (!peg) return res.status(404).json({ message: 'Pegawai tidak ditemukan' });
 
-  const index = pegawai.indexOf(peg);
-  pegawai.splice(index, 1);
+    await peg.remove();
 
-  res.json({ message: 'Pegawai berhasil dihapus', pegawai: peg });
+    res.json({ message: 'Pegawai berhasil dihapus', pegawai: peg });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // Console log untuk mengetahui bahwa server sudah berjalan
